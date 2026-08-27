@@ -1,0 +1,10 @@
+node_modules/
+dist/
+
+# Ortam dosyaları gizli anahtar içerebilir. Yalnızca şablon repoda tutulur.
+.env*
+!.env.example
+
+# Sunucu/SMTP/ödeme anahtarlarının yanlışlıkla eklenmesini önle.
+*.pem
+*.key

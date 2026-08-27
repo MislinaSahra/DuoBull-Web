@@ -1,0 +1,8 @@
+import { supabase } from "../lib/supabase.js";
+
+export async function fetchLftListings(){const{data,error}=await supabase.from("lft_listings").select("id,user_id,game,role,rank,region,availability,about,created_at,profiles(username,avatar_url,is_verified)").eq("is_active",true).order("created_at",{ascending:false});return error?{ok:false,message:error.message,list:[]}:{ok:true,list:data||[]};}
+export async function saveLftListing(userId,form){const{data,error}=await supabase.from("lft_listings").upsert({user_id:userId,game:form.game,role:form.role,rank:form.rank,region:form.region,availability:form.availability,about:form.about,is_active:true,updated_at:new Date().toISOString()},{onConflict:"user_id"}).select().single();return error?{ok:false,message:error.message}:{ok:true,item:data};}
+export async function closeLftListing(userId){const{error}=await supabase.from("lft_listings").update({is_active:false,updated_at:new Date().toISOString()}).eq("user_id",userId);return error?{ok:false,message:error.message}:{ok:true};}
+export async function deleteLftListing(userId){const{error}=await supabase.from("lft_listings").delete().eq("user_id",userId);return error?{ok:false,message:error.message}:{ok:true};}
+export async function inviteLftPlayer(listingId,teamId,message){const{error}=await supabase.rpc("invite_lft_player",{target_listing_id:listingId,target_team_id:teamId,invite_message:message||""});return error?{ok:false,message:error.message}:{ok:true};}
+export function subscribeLft(listener){const channel=supabase.channel("lft-live").on("postgres_changes",{event:"*",schema:"public",table:"lft_listings"},listener).subscribe();return()=>supabase.removeChannel(channel);}

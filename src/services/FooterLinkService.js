@@ -1,0 +1,4 @@
+import { supabase } from "../lib/supabase.js";
+export async function fetchFooterLinks(){const{data,error}=await supabase.from("site_footer_links").select("*").order("section").order("sort_order");if(error)throw error;return(data||[]).map(item=>({id:item.id,section:item.section,label:item.label,url:item.url,sortOrder:item.sort_order,isActive:item.is_active}));}
+export async function saveFooterLink(item){const payload={section:item.section.trim(),label:item.label.trim(),url:item.url.trim(),sort_order:Number(item.sortOrder)||0,is_active:item.isActive!==false,updated_at:new Date().toISOString()};const{error}=await supabase.from("site_footer_links").update(payload).eq("id",item.id);if(error)throw error;}
+export function subscribeToFooterLinks(listener){const channel=supabase.channel("site-footer-links-live").on("postgres_changes",{event:"*",schema:"public",table:"site_footer_links"},listener).subscribe();return()=>supabase.removeChannel(channel);}
