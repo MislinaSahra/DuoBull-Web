@@ -1,4 +1,4 @@
-import { ChevronRight, Gift, LockKeyhole, Search, ShieldCheck, ShoppingBag, Trash2, Truck, Zap } from "lucide-react";
+import { ChevronRight, Coins, Gift, LockKeyhole, Minus, Plus, Search, ShieldCheck, ShoppingBag, Trash2, Truck, Zap } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useHomeContent } from "../context/HomeContentContext.jsx";
@@ -37,14 +37,15 @@ export default function RewardShopSection() {
   const category = searchParams.get("kategori") || "tumu";
   const { images } = useHomeContent();
   const { isAuthenticated } = useAuth();
-  const { items: cartItems, addItem, removeItem, openCart, balance: cartBalance } = useCart();
+  const { items: cartItems, addItem, removeItem, updateQuantity, openCart, balance: cartBalance } = useCart();
   const { stockByProduct: productStock, refreshStock } = useAdminOperations();
   const navigate = useNavigate();
   const location = useLocation();
   const items = Array.isArray(cartItems) ? cartItems : [];
   const stockByProduct = productStock && typeof productStock === "object" ? productStock : {};
   const balance = Number(cartBalance) || 0;
-  const total = items.reduce((sum, item) => sum + Number(item.price || 0), 0);
+  const total = items.reduce((sum, item) => sum + Number(item.price || 0) * item.quantity, 0);
+  const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
   const activeProducts = useMemo(() => storeProducts.filter((product) => product.isActive !== false), [storeProducts]);
   const availableCategories = useMemo(() => ["tumu", ...new Set(activeProducts.map((product) => product.category).filter(Boolean))], [activeProducts]);
   const products = useMemo(() => {
@@ -54,6 +55,7 @@ export default function RewardShopSection() {
   const totalStock = activeProducts.reduce((sum, product) => sum + getStock(product, stockByProduct), 0);
 
   const buy = (product) => {
+    if (getStock(product, stockByProduct) < 1) return;
     if (!isAuthenticated) { navigate("/giris", { state: { from: location.pathname } }); return; }
     if (!subscription.hasFeature("loyalty_shop")) { navigate("/abonelik"); return; }
     addItem(product);
@@ -73,6 +75,7 @@ export default function RewardShopSection() {
         <div className="shop-categories">
           {availableCategories.map((id) => <button type="button" key={id} onClick={() => setSearchParams(id === "tumu" ? {} : { kategori: id })} className={category === id ? "is-active" : ""}><Gift />{categoryLabels[id] || id}</button>)}
         </div>
+        <div className="shop-toolbar__balance"><Coins /><span>Bakiyen</span><strong>{balance.toLocaleString("tr-TR")} BP</strong></div>
         <label className="shop-search"><Search /><input placeholder="Ürün, kod veya kategori ara..." value={query} onChange={(event) => setQuery(event.target.value)} /></label>
       </div>
 
@@ -81,17 +84,18 @@ export default function RewardShopSection() {
           {storeError ? <p className="shop-empty is-error">{storeError}</p> : null}
           {products.map((product) => {
             const inCart = items.some((item) => item.name === product.name);
+            const stock = getStock(product, stockByProduct);
             return (
               <article key={product.id || product.name} className="shop-product-card">
                 <div className="shop-product-card__image">
                   {product.image || images?.[product.imageKey] ? <img src={product.image || images?.[product.imageKey]} alt={product.name} loading="lazy" /> : <Gift />}
-                  <span>Stok: {getStock(product, stockByProduct)}</span>
+                  <span>Stok: {stock}</span>
                 </div>
                 <div className="shop-product-card__body">
                   <small>{product.type}</small><h3>{product.name}</h3>
                   {product.seoDescription ? <p>{product.seoDescription}</p> : null}
                   <strong>{Number(product.price).toLocaleString("tr-TR")} BP</strong>
-                  <button type="button" onClick={() => buy(product)} disabled={inCart} className={inCart ? "secondary-button" : "primary-button"}>{inCart ? "Sepete Eklendi" : "Sepete Ekle"}<ShoppingBag /></button>
+                  <button type="button" onClick={() => buy(product)} disabled={stock < 1} className={inCart ? "secondary-button" : "primary-button"}>{stock < 1 ? "Stokta Yok" : inCart ? "Bir Tane Daha Ekle" : "Sepete Ekle"}<ShoppingBag /></button>
                 </div>
               </article>
             );
@@ -100,18 +104,18 @@ export default function RewardShopSection() {
         </div>
 
         <aside className="shop-cart-panel">
-          <div className="shop-cart-panel__head"><h2>Sepetim</h2><span><ShoppingBag />{items.length}</span></div>
+          <div className="shop-cart-panel__head"><h2>Sepetim</h2><span><ShoppingBag />{itemCount}</span></div>
           <div className="shop-cart-items">
             {items.map((item) => <article key={item.id || item.name}>
               <div className="shop-cart-thumb">{item.image || images?.[item.imageKey] ? <img src={item.image || images?.[item.imageKey]} alt="" /> : <Gift />}</div>
-              <div><strong>{item.name}</strong><small>{item.type}</small><b>{Number(item.price).toLocaleString("tr-TR")} BP</b></div>
-              <button type="button" onClick={() => removeItem(item.name)} aria-label={`${item.name} ürününü kaldır`}><Trash2 /></button>
+              <div><strong>{item.name}</strong><small>{item.type}</small><b>{(Number(item.price) * item.quantity).toLocaleString("tr-TR")} BP</b><div className="shop-cart-quantity"><button type="button" onClick={() => item.quantity === 1 ? removeItem(item.name) : updateQuantity(item.name, item.quantity - 1)} aria-label="Adedi azalt"><Minus /></button><span>{item.quantity}</span><button type="button" onClick={() => updateQuantity(item.name, item.quantity + 1)} aria-label="Adedi artır"><Plus /></button></div></div>
+              <button type="button" className="shop-cart-remove" onClick={() => removeItem(item.name)} aria-label={`${item.name} ürününü kaldır`}><Trash2 /></button>
             </article>)}
             {!items.length ? <div className="shop-cart-empty"><ShoppingBag /><strong>Sepetin henüz boş.</strong><span>Ürünleri buradan takip edebilirsin.</span></div> : null}
           </div>
           <div className="shop-cart-stats">
             <p><span>Kullanılabilir bakiye</span><b>{balance.toLocaleString("tr-TR")} BP</b></p>
-            <p><span>Sepetteki ürün</span><b>{items.length} ürün</b></p>
+            <p><span>Sepetteki ürün</span><b>{itemCount} ürün</b></p>
             <p><span>Mağaza stoğu</span><b>{totalStock} adet</b></p>
             <p><span>Teslimat</span><b>Anında</b></p>
           </div>

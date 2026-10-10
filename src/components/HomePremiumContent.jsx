@@ -12,6 +12,7 @@ import { useToast } from "../context/ToastContext.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import { getMissionReward } from "../utils/loyaltyRewards.js";
 import { fetchPlayerLeaderboard } from "../services/ProfileFeatureService.js";
+import { fetchProducts, subscribeToProducts } from "../services/ProductService.js";
 
 const benefits = [
   { icon: Target, title: "Rekabet Et", description: "Takımını bul, açık turnuvalara katıl ve becerilerini göster." },
@@ -31,7 +32,7 @@ function PlayerLeaderboard() {
   useEffect(() => { fetchPlayerLeaderboard(5).then(setPlayers); }, []);
   if (!players.length) return null;
   const maxScore = Math.max(...players.map((player) => player.score), 1);
-  return <section className="premium-card home-leaderboard home-dashboard__leaderboard"><div className="home-leaderboard__head"><div><p className="home-eyebrow">DuoBull sıralaması</p><h2>En iyi oyuncular</h2><p>Eşleşme sayısı, eşitlikte XP.</p></div><Link to="/topluluk-eslestirme" className="text-[10px] font-black uppercase text-bull-neon">Tümü <ArrowRight className="inline h-3.5 w-3.5" /></Link></div><div className="home-leaderboard__list">{players.map((player, index) => <Link to={`/oyuncu/${player.id}`} key={player.id} className={`home-leaderboard__row ${index === 0 ? "is-first" : ""}`}><b className="home-leaderboard__position">#{index + 1}</b><span className="home-leaderboard__avatar">{player.avatar_url ? <img src={player.avatar_url} alt="" /> : player.username?.slice(0, 2).toUpperCase()}</span><span className="min-w-0"><strong>{player.username}{player.is_verified ? <ShieldCheck className="inline h-4 w-4 text-bull-neon" /> : null}</strong><small>{player.matchCount} eşleşme • {player.xp.toLocaleString("tr-TR")} XP</small></span><span className="home-leaderboard__progress"><i style={{ width: `${Math.max(8, player.score / maxScore * 100)}%` }} /></span></Link>)}</div></section>;
+  return <section className="premium-card home-leaderboard home-dashboard__leaderboard"><div className="home-leaderboard__head"><div><p className="home-eyebrow">DuoBull sıralaması</p><h2>En iyi oyuncular</h2></div><Link to="/topluluk-eslestirme" className="text-[10px] font-black uppercase text-bull-neon">Tümü <ArrowRight className="inline h-3.5 w-3.5" /></Link></div><div className="home-leaderboard__list">{players.map((player, index) => <Link to={`/oyuncu/${player.id}`} key={player.id} className={`home-leaderboard__row ${index === 0 ? "is-first" : ""}`}><b className="home-leaderboard__position">#{index + 1}</b><span className="home-leaderboard__avatar">{player.avatar_url ? <img src={player.avatar_url} alt="" /> : player.username?.slice(0, 2).toUpperCase()}</span><span className="min-w-0"><strong>{player.username}{player.is_verified ? <ShieldCheck className="inline h-4 w-4 text-bull-neon" /> : null}</strong><small>{player.matchCount} eşleşme • {player.xp.toLocaleString("tr-TR")} XP</small></span><span className="home-leaderboard__progress"><i style={{ width: `${Math.max(8, player.score / maxScore * 100)}%` }} /></span></Link>)}</div></section>;
 }
 
 function UpcomingTournaments({ items }) {
@@ -42,7 +43,22 @@ function HomeDashboard() { return <section className="container-shell pb-5"><div
 
 function ShopPreview() {
   const { images } = useHomeContent();
-  return <section className="premium-card home-dashboard__shop p-5"><SectionHead eyebrow="Bull Puan mağazası" title="Puanlarını harca, ödülleri kazan!" action="Mağazaya Git" to="/magaza" /><div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-2 2xl:grid-cols-3">{shopProducts.slice(0,6).map(product => <AuthenticatedLink to="/magaza" key={product.name} className="home-product"><div className="home-product__image"><img src={images[product.imageKey] || product.image} alt={product.name} loading="lazy" /></div><div className="p-3"><p className="line-clamp-1 text-xs font-black text-white">{product.name}</p><p className="mt-2 flex items-center gap-1 text-xs font-black text-bull-gold">{product.price} <Coins className="h-3 w-3" /></p></div></AuthenticatedLink>)}</div></section>;
+  const [products, setProducts] = useState(shopProducts);
+  useEffect(() => {
+    const refresh = () => fetchProducts().then((items) => {
+      const active = items.filter((item) => item.isActive);
+      if (active.length) setProducts(active);
+    });
+    refresh();
+    return subscribeToProducts(refresh, "home-shop-preview-live");
+  }, []);
+  return <section className="premium-card home-dashboard__shop p-5"><SectionHead eyebrow="Bull Puan mağazası" title="Puanlarını harca, ödülleri kazan!" action="Mağazaya Git" to="/magaza" /><div className="home-product-grid mt-5">{products.slice(0,4).map(product => {
+    const image = product.imageKey ? images[product.imageKey] || product.image : product.image;
+    const hasStockCount = Number.isFinite(product.stockCount);
+    const stockLabel = hasStockCount ? product.stockCount > 0 ? `${product.stockCount} stok` : "Tükendi" : product.stock;
+    const price = typeof product.price === "number" ? product.price.toLocaleString("tr-TR") : product.price;
+    return <AuthenticatedLink to="/magaza" key={product.id || product.name} className="home-product"><div className="home-product__image"><img src={image} alt={product.name} loading="lazy" />{stockLabel ? <span className={`home-product__stock ${hasStockCount && product.stockCount <= 0 ? "is-empty" : ""}`}>{stockLabel}</span> : null}</div><div className="home-product__body"><p className="line-clamp-1 text-xs font-black text-white" title={product.name}>{product.name}</p><p className="mt-2 flex items-center gap-1 text-xs font-black text-bull-gold">{price} <Coins className="h-3 w-3" /></p></div></AuthenticatedLink>;
+  })}</div></section>;
 }
 
 function MissionPreview() {
@@ -51,7 +67,7 @@ function MissionPreview() {
   const { showToast } = useToast();
   const percentage = mission => Math.min(100, ((progress[mission.id] || 0) / (mission.target || 1)) * 100);
   const claim = async mission => { const result = await claimMission(mission); showToast(result.ok ? "Görev ödülün hesabına eklendi." : result.message, result.ok ? "success" : "error"); };
-  return <section className="premium-card home-dashboard__missions p-5"><SectionHead eyebrow="Bugünün akışı" title="Günlük görevler" action="Tüm Görevler" to="/gorevler" /><div className="mt-5 space-y-3">{missions.slice(0,4).map(mission => { const value = percentage(mission); const done = claimed.includes(mission.id); const reward = getMissionReward(mission, loyalty.xp, subscription.hasFeature("bp_enabled")); return <article key={mission.id} className="home-mission"><div className="flex min-w-0 items-start justify-between gap-3"><div className="min-w-0"><p className="truncate text-sm font-black text-white">{mission.title}</p><p className="mt-1 text-[11px] text-white/42">{progress[mission.id] || 0} / {mission.target}</p></div><div className="flex shrink-0 gap-1.5">{subscription.hasFeature("bp_enabled") ? <span className="home-reward home-reward--bp" title={reward.hasBonus ? "Sadakat seviyesi bonusu dahil" : undefined}>{reward.bp} BP</span> : null}<span className="home-reward" title={reward.hasBonus ? "Sadakat seviyesi bonusu dahil" : undefined}>{reward.xp} XP</span></div></div><div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/[0.07]"><div className="h-full rounded-full bg-gradient-to-r from-bull-neon to-bull-gold" style={{ width: `${value}%` }} /></div>{value === 100 ? <button type="button" disabled={done} onClick={() => claim(mission)} className={done ? "home-mission__done" : "home-mission__claim"}><Check className="h-3.5 w-3.5" /> {done ? "Tamamlandı" : "Ödülü Al"}</button> : null}</article>; })}</div></section>;
+  return <section className="premium-card home-dashboard__missions p-5"><SectionHead eyebrow="Bugünün akışı" title="Günlük görevler" action="Tüm Görevler" to="/gorevler" /><div className="home-mission-list mt-5">{missions.slice(0,4).map(mission => { const value = percentage(mission); const done = claimed.includes(mission.id); const reward = getMissionReward(mission, loyalty.xp, subscription.hasFeature("bp_enabled")); return <article key={mission.id} className="home-mission"><p className="home-mission__title" title={mission.title}>{mission.title}</p><div className="home-mission__meta"><span>{progress[mission.id] || 0} / {mission.target}</span><div className="flex shrink-0 gap-1.5">{subscription.hasFeature("bp_enabled") ? <span className="home-reward home-reward--bp" title={reward.hasBonus ? "Sadakat seviyesi bonusu dahil" : undefined}>{reward.bp} BP</span> : null}<span className="home-reward home-reward--xp" title={reward.hasBonus ? "Sadakat seviyesi bonusu dahil" : undefined}>{reward.xp} XP</span></div></div><div className="home-mission__progress"><div style={{ width: `${value}%` }} /></div>{value === 100 ? <button type="button" disabled={done} onClick={() => claim(mission)} className={done ? "home-mission__done" : "home-mission__claim"}><Check className="h-3.5 w-3.5" /> {done ? "Tamamlandı" : "Ödülü Al"}</button> : null}</article>; })}</div></section>;
 }
 
 function LoyaltyPreview() {

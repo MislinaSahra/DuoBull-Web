@@ -1,10 +1,32 @@
-# DuoBull Web
+# DuoBull
 
-DuoBull; React, Vite, Tailwind CSS ve Supabase ile geliştirilmiş bir oyuncu, takım, turnuva ve ödül platformudur. Bu repository sitenin **gerçek development kaynak kodunu** içerir. Uygulamanın çalışması için Codex'e veya Codex'e özel gizli bir çalışma ortamına ihtiyaç yoktur.
+> Competitive gaming community platform for players, teams, tournaments, loyalty rewards, and digital prize management.
 
-## Hızlı başlangıç
+**Live site:** [duobull.com](https://duobull.com)
 
-Gereksinimler: Node.js 20 veya daha yeni bir LTS sürümü ve npm.
+## Overview
+
+DuoBull brings together competitive players and team captains in a single platform. Players can discover teammates, join tournaments, complete daily missions, earn Bull Points, and spend rewards in the digital store.
+
+## Highlights
+
+- Email authentication, account verification, MFA, and recovery-code support
+- Player profiles, team discovery, team creation, and role-based roster management
+- Tournament publishing, applications, brackets, and participation workflows
+- Daily missions, loyalty XP, levels, subscriptions, Bull Points, and reward store
+- Community posts, private/team conversations, support requests, and referrals
+- Admin workflows for moderation, orders, content, stock, and platform configuration
+- Responsive React interface with Turkish localization
+
+## Tech stack
+
+- React 19, Vite, React Router, Tailwind CSS
+- Supabase Auth, PostgreSQL, Storage, Realtime, and Row Level Security
+- Lucide React icons, image cropping, Playwright E2E test setup
+
+## Run locally
+
+Requires Node.js 20+ and npm.
 
 ```bash
 npm install
@@ -12,9 +34,14 @@ copy .env.example .env.local
 npm run dev
 ```
 
-`.env.local` içine Supabase proje URL'sini ve tarayıcıda kullanılabilen publishable key'i ekleyin. `service_role`, SMTP parolası veya ödeme gizli anahtarını hiçbir zaman `VITE_` değişkenine koymayın.
+Set these browser-safe values in `.env.local`:
 
-Yerel adres varsayılan olarak `http://localhost:5173` olur.
+```env
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=your-publishable-key
+```
+
+Never place `service_role`, SMTP, payment, or any other private key in a `VITE_` variable.
 
 ## Production build
 
@@ -23,46 +50,24 @@ npm run build
 npm run preview
 ```
 
-Build çıktısı `dist/` klasörüne yazılır. Hostinger'a yüklenen klasör budur; ancak düzenleme yapılacak kaynak kod `src/` klasöründedir.
+Vite writes deployable output to `dist/`. Source changes belong in `src/`, `public/`, and `supabase/`.
 
-## Kaynak kod haritası
+## Project structure
 
 ```text
-src/
-├── app/          Uygulama kabuğu, provider'lar, route'lar ve erişim kontrolleri
-├── components/   Tekrar kullanılan UI parçaları ve sayfa bölümleri
-├── constants/    Oyun sabitleri
-├── context/      Uygulama state'i ve Supabase veri akışları
-├── data/         Kolay düzenlenen varsayılan metinler, görseller ve örnek veriler
-├── lib/          Supabase istemcisi ve Storage yardımcıları
-├── pages/        URL'lere karşılık gelen gerçek sayfa kaynakları
-├── services/     Backend/Supabase sorgu ve işlem fonksiyonları
-├── utils/        Küçük ortak yardımcı fonksiyonlar
-├── App.jsx       Küçük ve okunabilir uygulama başlangıç bileşeni
-├── main.jsx      React'in tarayıcıya bağlandığı giriş noktası
-└── styles.css    Global CSS ve ortak component sınıfları
-
-public/           Statik görseller, ikonlar ve ürün görselleri
-supabase/         Veritabanı şeması, RLS politikaları ve migration SQL dosyaları
-docs/             Manuel düzenleme rehberleri
-dist/             Üretilmiş build çıktısı; kaynak kod değildir
-node_modules/     npm paketleri; kaynak kod değildir
+src/        React pages, components, contexts, services, and styling
+public/     Static brand, icon, product, and background assets
+supabase/   Schema, migrations, RLS policies, and Edge Functions
+docs/       Editing and project documentation
+tests/      Playwright end-to-end tests
 ```
 
-## Nereden düzenlemeliyim?
+## Demo access
 
-- Bir sayfa: `src/pages/`
-- Navbar veya footer: `src/components/Header.jsx`, `src/components/Footer.jsx`
-- Ana sayfa bölümleri: `src/pages/HomePage.jsx` ve `src/components/*Section.jsx`
-- Route/URL: `src/app/AppRoutes.jsx`
-- Sabit metin ve varsayılan içerik: `src/data/siteTextDefaults.js`, `src/data/mockData.js`
-- Stil: ilgili JSX içindeki Tailwind class'ları ve `src/styles.css`
-- Statik görsel: `public/` ve `src/data/brandAssets.js`
-- Supabase çağrısı: `src/services/`, `src/context/`, `src/lib/supabase.js`
-- Veritabanı/RLS: `supabase/*.sql`
+For security, administrator credentials are not published in this repository. A restricted demo account can be provided to portfolio reviewers on request. Public demo access never includes administrative privileges.
 
-Ayrıntılı rehber için [docs/EDITING_GUIDE.md](docs/EDITING_GUIDE.md), tam dosya haritası için [docs/PROJECT_MAP.md](docs/PROJECT_MAP.md) dosyasını açın.
+## Security
 
-## Önemli güvenlik notu
+Environment files, deployment output, local database backups, test artifacts, private keys, and logs are excluded through `.gitignore`. Privileged operations are protected by Supabase RLS and database functions rather than UI-only checks.
 
-`.env.local` git'e veya `dist/` içine eklenmemelidir. Frontend yalnızca publishable/anon anahtarı kullanır. Yönetici yetkisi sadece arayüzde gizlenen butonlara değil, Supabase RLS ve güvenli database function kontrollerine dayanmalıdır.
+For a detailed codebase map, see [docs/PROJECT_MAP.md](docs/PROJECT_MAP.md).

@@ -1,4 +1,4 @@
-import { Check, Crown, Headphones, RefreshCw, ShieldCheck, ShoppingBag, Sparkles, Trophy, Users, X, Zap } from "lucide-react";
+import { Check, ChevronRight, Crown, Headphones, RefreshCw, ShieldCheck, ShoppingBag, Sparkles, Trophy, Users, X, Zap } from "lucide-react";
 import { useState } from "react";
 import PageHero from "../components/PageHero.jsx";
 import { useSubscription } from "../context/SubscriptionContext.jsx";
@@ -38,6 +38,7 @@ export default function SubscriptionPage() {
       highlightedTitle="zirveye taşı."
       description="DuoBull abonelik paketleri ile profilini geliştir, topluluğuna değer kat ve turnuvalarda öne çık."
       backgroundKey="subscription"
+      iconKey="loyalty"
       showTrust={false}
       actions={<div className="subscription-hero-benefits"><HeroBenefit icon={Sparkles} title="Öne Çık" text="Profilini güçlendir" /><HeroBenefit icon={Zap} title="Daha Fazla Kazan" text="BP ve sadakat avantajları" /><HeroBenefit icon={Users} title="Topluluğunu Büyüt" text="Takımını ve topluluğunu geliştir" /></div>}
     />
@@ -47,7 +48,7 @@ export default function SubscriptionPage() {
         <ActiveBenefit icon={Zap} label="Günlük BP Kazancı" value={subscriptions.activePlan.bp_enabled ? "Aktif" : "Kapalı"} />
         <ActiveBenefit icon={ShoppingBag} label="Sadakat Mağazası" value={subscriptions.activePlan.loyalty_shop ? "Erişim Açık" : "Kapalı"} />
         <ActiveBenefit icon={Trophy} label="Takım Yönetimi" value={`${subscriptions.activePlan.max_teams || 1} takım`} />
-        <button type="button" onClick={openManagement} className="secondary-button">Aboneliği Yönet</button>
+        <button type="button" onClick={openManagement} className="subscription-active__manage">Plan ayarları <ChevronRight /></button>
       </section> : null}
 
       <div className="subscription-layout">

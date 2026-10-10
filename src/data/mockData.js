@@ -266,21 +266,29 @@ export const testimonials = [
 
 export const footerLinks = {
   Platform: [
+    { label: "Ana Sayfa", to: "/" },
     { label: "Takım Bul", to: "/takim-bul" },
+    { label: "Takım Oluştur", to: "/takim-olustur" },
     { label: "Turnuvalar", to: "/turnuvalar" },
-    { label: "Görevler", to: "/gorevler" },
-    { label: "Sadakat", to: "/sadakat" }
+    { label: "Turnuva Oluştur", to: "/turnuva-olustur" },
+    { label: "Topluluk Sıralaması", to: "/topluluk-eslestirme" }
   ],
-  Mağaza: [
-    { label: "Tüm Ürünler", to: "/magaza" },
-    { label: "Oyun Kodları", to: "/magaza?kategori=oyun-kodlari#magaza" },
-    { label: "Dijital Kartlar", to: "/magaza?kategori=dijital-kartlar#magaza" }
+  Keşfet: [
+    { label: "Sosyal", to: "/sosyal" },
+    { label: "Tartışmalar", to: "/tartismalar" },
+    { label: "Blog", to: "/blog" },
+    { label: "Görevler", to: "/gorevler" },
+    { label: "Sadakat", to: "/sadakat" },
+    { label: "Mağaza", to: "/magaza" },
+    { label: "Abonelik", to: "/abonelik" }
   ],
   Destek: [
     { label: "SSS", to: "/destek#sss" },
     { label: "Destek Talebi", to: "/destek#talep" },
     { label: "Kullanım Koşulları", to: "/kullanim-kosullari" },
-    { label: "Gizlilik Politikası", to: "/gizlilik-politikasi" }
+    { label: "Gizlilik Politikası", to: "/gizlilik-politikasi" },
+    { label: "KVKK", to: "/kvkk" },
+    { label: "Çerez Politikası", to: "/cerez-politikasi" }
   ],
   Topluluk: [
     { label: "Discord", to: "/topluluk" },

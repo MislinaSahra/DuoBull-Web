@@ -4,17 +4,20 @@ import Header from "../components/Header.jsx";
 import SiteFrame from "../components/SiteFrame.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import { ProtectedUser } from "./RouteGuards.jsx";
+import StructuredData from "../components/StructuredData.jsx";
 
 /** Ortak sayfa iskeleti: üst menü, içerik ve footer. */
 export default function AppLayout({ children }) {
   const { isAuthenticated } = useAuth();
   const { pathname } = useLocation();
+  const isAdminPanel = pathname === "/admin";
 
   return (
     <SiteFrame>
-      <Header />
+      <StructuredData />
+      {!isAdminPanel ? <Header /> : null}
       <main>{children}</main>
-      {isAuthenticated || pathname === "/" ? <Footer /> : null}
+      {!isAdminPanel && (isAuthenticated || pathname === "/") ? <Footer /> : null}
     </SiteFrame>
   );
 }

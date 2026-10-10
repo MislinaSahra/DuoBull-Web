@@ -14,7 +14,7 @@ const bannerKeys = {
   subscription: "subscription-banner"
 };
 
-export default function PageHero({ title, highlightedTitle, description, actions, eyebrow, backgroundKey, showTrust = true }) {
+export default function PageHero({ title, highlightedTitle, description, actions, eyebrow, backgroundKey, iconKey, showTrust = true }) {
   const { images } = useHomeContent();
   const managedKey = bannerKeys[backgroundKey || "hero"];
   const background = images?.[managedKey] || (backgroundKey ? brandAssets.backgrounds[backgroundKey] : brandAssets.backgrounds.hero);
@@ -29,6 +29,11 @@ export default function PageHero({ title, highlightedTitle, description, actions
         <div className="page-hero__edge" aria-hidden="true" />
         <div className="container-shell page-hero__content relative flex min-h-[300px] items-center py-9 lg:min-h-[340px] lg:py-12">
           <div className="max-w-[760px]">
+            {iconKey && brandAssets.icons[iconKey] ? (
+              <span className="page-hero__icon" aria-hidden="true">
+                <img src={brandAssets.icons[iconKey]} alt="" />
+              </span>
+            ) : null}
             {eyebrow ? (
               <p className="page-hero__eyebrow">/// &nbsp; {eyebrow} &nbsp; ///</p>
             ) : null}

@@ -1,4 +1,4 @@
-import { Activity, CheckCircle2, ChevronDown, DatabaseZap, Edit3, Gift, Headphones, ImageIcon, LayoutDashboard, Megaphone, PackagePlus, Plus, RotateCcw, Save, Settings, ShoppingBag, Trash2, Trophy, Upload, UserPlus, Users, X, Zap } from "lucide-react";
+import { Activity, CheckCircle2, DatabaseZap, Edit3, ExternalLink, Gift, Headphones, ImageIcon, LayoutDashboard, Megaphone, PackagePlus, Plus, RotateCcw, Save, Settings, ShoppingBag, Trash2, Trophy, Upload, UserPlus, Users, X, Zap } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { getTeamLogoOptions, homeImageFields, useHomeContent } from "../context/HomeContentContext.jsx";
 import { useAdminOperations } from "../context/AdminOperationsContext.jsx";
@@ -18,6 +18,7 @@ import { fetchProducts, saveProduct, subscribeToProducts } from "../services/Pro
 import { useAuth } from "../context/AuthContext.jsx";
 import { requestGlobalCacheClear } from "../services/CacheService.js";
 import { fetchMatchEvidence } from "../services/TeamMatchService.js";
+import { toWebpDataUrl } from "../lib/storageImages.js";
 
 export default function AdminDashboardPage() {
   const { isSuperAdmin } = useAuth();
@@ -26,7 +27,7 @@ export default function AdminDashboardPage() {
   const engagement = useEngagement();
   const subscriptions = useSubscription();
   const [activeView, setActiveView] = useState(null);
-  const [adminSection, setAdminSection] = useState(() => new URLSearchParams(window.location.search).get("section") || "overview");
+  const [adminSection, setAdminSection] = useState(() => { const section = new URLSearchParams(window.location.search).get("section") || "overview"; return section === "visuals" ? "site" : section; });
   const [matchEvidenceCount,setMatchEvidenceCount]=useState(0);
   const [reviewReportCount,setReviewReportCount]=useState(0);
   const [adminOrders,setAdminOrders]=useState([]);
@@ -57,7 +58,7 @@ export default function AdminDashboardPage() {
         <AdminOverview operations={operations} engagement={engagement} subscriptions={subscriptions} orders={adminOrders} openView={openView} isSuperAdmin={isSuperAdmin} />
         </> : null}
 
-        {adminSection === "visuals" ? <><div className="glass-card min-w-0 rounded-xl p-4 sm:p-5">
+        {adminSection === "site" ? <><div className="glass-card min-w-0 rounded-xl p-4 sm:p-5">
           <div className={`flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between ${editingImages ? "border-b border-white/10 pb-5" : ""}`}>
             <div className="flex min-w-0 items-center gap-3">
               <span className="icon-tile"><ImageIcon className="h-5 w-5" /></span>
@@ -82,20 +83,19 @@ export default function AdminDashboardPage() {
             {!visualProducts.length ? <p className="py-8 text-center text-xs text-white/40 md:col-span-2 2xl:col-span-3">Mağaza kataloğunda ürün bulunmuyor.</p> : null}
           </div>
         </div> : null}
-        <TeamLogoManager images={images} onSave={updateImage} onRemove={removeImage} /></> : null}
+        <TeamLogoManager images={images} onSave={updateImage} onRemove={removeImage} />
+        <CollapsibleAdmin title="Site Bağlantıları ve Metinleri" description="Footer, sosyal medya, partner ve site genelindeki yönetilebilir metinleri tek yerden düzenleyin."><div className="grid items-start gap-4 xl:grid-cols-[minmax(320px,.8fr)_minmax(0,1.2fr)]"><div className="grid min-w-0 gap-4"><PartnerManager partners={partners} onSave={updatePartners} /><SiteTextManager content={siteTexts} onSave={updateSiteText} /></div><FooterLinkManager links={footerLinks} onSave={updateFooterLink} /></div></CollapsibleAdmin></> : null}
 
         {adminSection === "subscriptions" ? <><CollapsibleAdmin title="Abonelik Yönetimi" description="Paketleri ve bekleyen abonelik taleplerini yönetin."><SubscriptionAdmin subscriptions={subscriptions} /></CollapsibleAdmin>
         <CollapsibleAdmin title="Aktif Kullanıcı Abonelikleri" description="Aktif abonelikleri görüntüleyin veya iptal edin."><ActiveSubscriptionsAdmin subscriptions={subscriptions} /></CollapsibleAdmin>
         </> : null}
-        {adminSection === "members" ? <CollapsibleAdmin title="Üye Yönetimi" description="Kullanıcı rollerini, hesap durumlarını ve üyeleri yönetin."><AdminMembersPanel /><VerificationRequestsPanel /></CollapsibleAdmin> : null}
-        {adminSection === "seo" ? <SeoContentCollapsible /> : null}
+        {adminSection === "members" ? <CollapsibleAdmin title="Üye Yönetimi" description="Kullanıcı rollerini, hesap durumlarını ve doğrulama başvurularını yönetin."><div className="admin-members-layout"><AdminMembersPanel /><VerificationRequestsPanel /></div></CollapsibleAdmin> : null}
+        {adminSection === "seo" ? <SeoContentCollapsible mode="seo" /> : null}
+        {adminSection === "blog" ? <SeoContentCollapsible mode="blog" /> : null}
         {adminSection === "catalog" ? <CollapsibleAdmin title="Oyun ve Mağaza Kataloğu" description="Oyun kategorilerini ve mağaza ürünlerini ekleyin veya düzenleyin."><AdminSectionErrorBoundary><CatalogManagement /></AdminSectionErrorBoundary></CollapsibleAdmin> : null}
         {adminSection === "moderation" ? <><PlayerReviewModeration communityReviews={engagement.reviewQueue} onDeleteCommunity={engagement.deleteReview} />
 
-        <CollapsibleAdmin title="İçerik ve Topluluk Yönetimi" description="Partner listesini, footer bağlantılarını ve ana sayfa yorum onaylarını yönetin."><div className="grid gap-6 lg:grid-cols-2">
-          <PartnerManager partners={partners} onSave={updatePartners} />
-          <ReviewManager engagement={engagement} />
-        </div><FooterLinkManager links={footerLinks} onSave={updateFooterLink} /><SiteTextManager content={siteTexts} onSave={updateSiteText} /></CollapsibleAdmin></> : null}
+        <CollapsibleAdmin title="Topluluk İçerikleri" description="Ana sayfa topluluk yorumlarını ve moderasyon kuyruğunu yönetin."><ReviewManager engagement={engagement} /></CollapsibleAdmin></> : null}
         {adminSection === "match-evidence" ? <AdminManagementModal embedded view="matchEvidence" onClose={()=>changeSection("overview")} /> : null}
 
         {activeView ? <div className="mt-4"><AdminManagementModal embedded view={activeView.view} entityId={activeView.entityId} onClose={() => setActiveView(null)} /></div> : null}
@@ -108,9 +108,9 @@ export default function AdminDashboardPage() {
 function AdminSidebar({ active, onChange, openView, counts }) {
   const sections = [
     ["overview", "Genel Bakış"], ["members", "Üye Yönetimi"],
-    ["subscriptions", "Abonelikler"], ["moderation", "Topluluk ve Yorumlar"], ["match-evidence", "Maç Kanıtları"], ["catalog", "Oyun ve Mağaza"], ["visuals", "Görsel Yönetimi"], ["seo", "SEO ve Blog"]
+    ["subscriptions", "Abonelikler"], ["moderation", "Topluluk ve Yorumlar"], ["match-evidence", "Maç Kanıtları"], ["catalog", "Oyun ve Mağaza"], ["site", "Site Yönetimi"], ["seo", "SEO Ayarları"], ["blog", "Blog Yönetimi"]
   ];
-  return <aside className="admin-sidebar sticky top-20 overflow-hidden"><div className="admin-sidebar__brand"><span><Settings /></span><div><p>Yönetim paneli</p><h2>DuoBull Yönetim Merkezi</h2></div></div><nav>{sections.map(([id,label]) => <button key={id} type="button" onClick={() => onChange(id)} className={active === id ? "is-active" : ""}><LayoutDashboard /><span>{label}</span>{counts[id]>0?<b>{counts[id]}</b>:null}</button>)}</nav><div className="admin-sidebar__quick"><p>Hızlı işlemler</p><button type="button" onClick={() => openView("orders")}><ShoppingBag />Siparişler{counts.orders>0?<b>{counts.orders}</b>:null}</button><button type="button" onClick={() => openView("stock")}><Gift />Ödül Stoğu Ekle</button><button type="button" onClick={() => openView("support")}><Headphones />Destek Talepleri</button><button type="button" onClick={() => openView("balance")}><Activity />Bakiye / XP</button></div></aside>;
+  return <aside className="admin-sidebar sticky top-5 overflow-hidden"><div className="admin-sidebar__brand"><span><Settings /></span><div><p>Yönetim paneli</p><h2>DuoBull Yönetim Merkezi</h2></div></div><button type="button" className="admin-view-site" onClick={() => window.open("/", "_blank", "noopener,noreferrer")}><ExternalLink />Siteyi görüntüle</button><nav>{sections.map(([id,label]) => <button key={id} type="button" onClick={() => onChange(id)} className={active === id ? "is-active" : ""}><LayoutDashboard /><span>{label}</span>{counts[id]>0?<b>{counts[id]}</b>:null}</button>)}</nav><div className="admin-sidebar__quick"><p>Hızlı işlemler</p><button type="button" onClick={() => openView("orders")}><ShoppingBag />Siparişler{counts.orders>0?<b>{counts.orders}</b>:null}</button><button type="button" onClick={() => openView("stock")}><Gift />Ödül Stoğu Ekle</button><button type="button" onClick={() => openView("support")}><Headphones />Destek Talepleri</button><button type="button" onClick={() => openView("balance")}><Activity />Bakiye / XP</button></div></aside>;
 }
 
 function AdminSoundAlerts({ operations, engagement, subscriptions, orderCount = 0, reviewReportCount = 0 }) {
@@ -121,7 +121,7 @@ function AdminSoundAlerts({ operations, engagement, subscriptions, orderCount = 
   return <div className="my-4 flex items-center justify-between rounded-xl border border-bull-neon/20 bg-bull-neon/[0.05] p-3"><p className="text-xs font-bold text-white/60">Yeni operasyon, abonelik, yorum ve destek işlemleri için sesli uyarı</p><button type="button" onClick={()=>setEnabled((value)=>{window.localStorage.setItem("duobull.admin.sound",value?"off":"on");return !value;})} className="secondary-button px-3 py-2 text-xs">Ses {enabled?"Açık":"Kapalı"}</button></div>;
 }
 
-function CollapsibleAdmin({ title, description, children }) { const [open,setOpen]=useState(false); return <div className="mt-6"><section className="glass-card rounded-2xl p-5"><div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div><h2 className="text-xl font-black">{title}</h2><p className="mt-1 text-xs text-white/45">{description}</p></div><button type="button" onClick={()=>setOpen(value=>!value)} className="primary-button px-4 py-2.5 text-xs">{open?"Detayları Kapat":"Detayları Aç"}<ChevronDown className={`h-4 w-4 transition ${open?"rotate-180":""}`}/></button></div></section>{open?<div className="-mt-2 [&>section]:mt-0 [&>section]:rounded-t-none">{children}</div>:null}</div>; }
+function CollapsibleAdmin({ title, description, children }) { return <div className="mt-6"><section className="glass-card rounded-2xl p-5"><h2 className="text-xl font-black">{title}</h2><p className="mt-1 text-xs text-white/45">{description}</p></section><div className="mt-3">{children}</div></div>; }
 
 function AdminOverview({ operations, engagement, subscriptions, orders, openView, isSuperAdmin }) {
   const openTickets = engagement.tickets.filter((item) => item.status !== "closed");
@@ -193,17 +193,17 @@ function FooterLinkManager({ links, onSave }) {
       setStatus(error?.message || "Bağlantı kaydedilemedi.");
     }
   };
-  return <section className="glass-card mt-6 rounded-2xl p-5">
+  return <section className="glass-card rounded-2xl p-5">
     <h3 className="text-xl font-black">Footer Bağlantıları</h3>
     <p className="mt-1 text-xs text-white/45">Destek ve topluluk alanındaki yazıları, hedef adresleri ve görünürlüğü yönetin.</p>
-    <div className="mt-5 grid gap-5 xl:grid-cols-2">{["Destek", "Topluluk"].map((section) => <div key={section} className="rounded-xl border border-white/10 bg-black/20 p-4">
+    <div className="mt-4 grid gap-4">{["Destek", "Topluluk"].map((section) => <div key={section} className="rounded-xl border border-white/10 bg-black/20 p-4">
       <h4 className="font-black text-bull-neon">{section}</h4>
-      <div className="mt-3 space-y-3">{drafts.filter((item) => item.section === section).sort((a,b) => a.sortOrder-b.sortOrder).map((item) => <div key={item.id} className="rounded-lg border border-white/10 bg-white/[0.025] p-3">
-        <div className="grid gap-2 sm:grid-cols-[minmax(120px,0.75fr)_minmax(0,1.5fr)]">
+      <div className="mt-3 grid gap-2">{drafts.filter((item) => item.section === section).sort((a,b) => a.sortOrder-b.sortOrder).map((item) => <div key={item.id} className="grid items-end gap-2 rounded-lg border border-white/10 bg-white/[0.025] p-3 md:grid-cols-[minmax(130px,.8fr)_minmax(180px,1.2fr)_auto_auto]">
+        <div className="contents">
           <label className="text-[10px] font-bold uppercase tracking-wider text-white/40">Bağlantı adı<input value={item.label} onChange={(event) => update(item.id,"label",event.target.value)} className="mt-1.5 w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2.5 text-sm text-white outline-none focus:border-bull-neon" /></label>
-          {section === "Topluluk" ? <label className="text-[10px] font-bold uppercase tracking-wider text-white/40">Sosyal medya adresi<input type="url" value={item.url} onChange={(event) => update(item.id,"url",event.target.value)} placeholder="https://..." className="mt-1.5 w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2.5 text-sm text-white outline-none focus:border-bull-neon" /><span className="mt-1 block normal-case tracking-normal text-white/30">Bağlantı yeni sekmede doğrudan açılır.</span></label> : <div className="rounded-lg border border-bull-neon/15 bg-bull-neon/[0.04] px-3 py-2.5 text-xs leading-5 text-white/45">Bu bağlantının açtığı sayfa metinlerini aşağıdaki <strong className="text-bull-neon">Destek ve Yasal Metinler</strong> bölümünden düzenleyebilirsiniz.</div>}
+          <label className="text-[10px] font-bold uppercase tracking-wider text-white/40">Hedef adres<input type={section === "Topluluk" ? "url" : "text"} value={item.url} onChange={(event) => update(item.id,"url",event.target.value)} placeholder={section === "Topluluk" ? "https://..." : "/destek#sss"} className="mt-1.5 w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2.5 text-sm text-white outline-none focus:border-bull-neon" /></label>
         </div>
-        <div className="mt-3 flex items-center justify-between gap-3"><label className="flex items-center gap-2 text-xs font-bold text-white/60"><input type="checkbox" checked={item.isActive !== false} onChange={(event) => update(item.id,"isActive",event.target.checked)} /> Footer'da göster</label><button type="button" onClick={() => save(item)} disabled={!item.label.trim() || !item.url.trim()} className="primary-button px-4 py-2 text-xs disabled:cursor-not-allowed disabled:opacity-40"><Save className="h-3.5 w-3.5" /> Kaydet</button></div>
+        <label className="flex h-10 items-center gap-2 whitespace-nowrap text-xs font-bold text-white/60"><input type="checkbox" checked={item.isActive !== false} onChange={(event) => update(item.id,"isActive",event.target.checked)} /> Göster</label><button type="button" onClick={() => save(item)} disabled={!item.label.trim() || !item.url.trim()} className="primary-button button-compact disabled:cursor-not-allowed disabled:opacity-40"><Save className="h-3.5 w-3.5" /> Kaydet</button>
       </div>)}</div>
     </div>)}</div>
     {status ? <p className="mt-3 text-xs font-bold text-emerald-200">{status}</p> : null}
@@ -222,7 +222,7 @@ function SiteTextManager({ content, onSave }) {
   };
   const updateFaq = (index, field, value) => setPage("faq", { ...drafts.faq, items: drafts.faq.items.map((item, itemIndex) => itemIndex === index ? { ...item, [field]: value } : item) });
   const updateLegal = (key, index, field, value) => setPage(key, { ...drafts[key], sections: drafts[key].sections.map((item, itemIndex) => itemIndex === index ? { ...item, [field]: value } : item) });
-  return <section className="glass-card mt-6 rounded-2xl p-5">
+  return <section className="glass-card rounded-2xl p-5">
     <h3 className="text-xl font-black">Destek ve Yasal Metinler</h3><p className="mt-1 text-xs text-white/45">SSS, kullanım koşulları ve gizlilik politikası içeriklerini düzenleyin.</p>
     <div className="mt-4 space-y-3">
       <details className="rounded-xl border border-white/10 bg-black/20 p-4"><summary className="cursor-pointer font-black text-bull-neon">Sık Sorulan Sorular</summary><div className="mt-4 space-y-3"><input value={drafts.faq.title} onChange={(event) => setPage("faq", { ...drafts.faq, title: event.target.value })} className="w-full rounded-lg border border-white/10 bg-black/30 p-3 font-bold text-white outline-none focus:border-bull-neon" />{drafts.faq.items.map((item,index) => <div key={index} className="rounded-lg border border-white/10 p-3"><input value={item.question} onChange={(event) => updateFaq(index,"question",event.target.value)} className="w-full rounded-lg border border-white/10 bg-black/30 p-3 text-sm font-bold text-white outline-none" /><textarea value={item.answer} onChange={(event) => updateFaq(index,"answer",event.target.value)} className="mt-2 min-h-20 w-full rounded-lg border border-white/10 bg-black/30 p-3 text-sm text-white outline-none" /><button type="button" onClick={() => setPage("faq", { ...drafts.faq, items: drafts.faq.items.filter((_,itemIndex) => itemIndex !== index) })} className="mt-2 text-xs font-bold text-red-200">Soruyu kaldır</button></div>)}<div className="flex flex-wrap justify-between gap-2"><button type="button" onClick={() => setPage("faq", { ...drafts.faq, items: [...drafts.faq.items, { question: "Yeni soru", answer: "Yanıt" }] })} className="secondary-button px-3 py-2 text-xs">Yeni Soru</button><button type="button" onClick={() => save("faq")} className="primary-button px-4 py-2 text-xs"><Save className="h-4 w-4" /> SSS'yi Kaydet</button></div></div></details>
@@ -250,7 +250,10 @@ function PlanInput({ label, value, onChange, type="text", disabled=false }) { co
 function ActiveSubscriptionsAdmin({ subscriptions }) {
   const active = subscriptions.subscriptions.filter((item) => item.status === "active" && new Date(item.ends_at).getTime() > Date.now());
   const [message, setMessage] = useState("");
-  return <section className="glass-card mt-6 rounded-2xl p-5"><h2 className="text-xl font-black">Aktif Kullanıcı Abonelikleri</h2><p className="mt-1 text-xs text-white/45">Gerekli durumda kullanıcının aboneliğini iptal edebilirsiniz.</p><div className="mt-4 grid gap-3 lg:grid-cols-2">{active.map((item) => <article key={item.id} className="flex flex-col gap-3 rounded-xl border border-white/10 bg-black/20 p-4 sm:flex-row sm:items-center sm:justify-between"><div><strong>{item.userName}</strong><p className="mt-1 text-xs text-white/50">{item.userEmail || item.user_id}</p><p className="mt-1 text-xs text-white/40">{subscriptions.plans.find((plan) => plan.id === item.plan_id)?.name || item.plan_id} • {new Date(item.ends_at).toLocaleDateString("tr-TR")}</p></div><button type="button" onClick={async () => { if (!window.confirm(`${item.userName} kullanıcısının aboneliği iptal edilsin mi?`)) return; const result = await subscriptions.cancel(item.id); setMessage(result.ok ? "Abonelik iptal edildi." : result.message); }} className="secondary-button border-red-300/20 px-3 py-2 text-xs text-red-200">Aboneliği İptal Et</button></article>)}{active.length === 0 ? <p className="py-4 text-center text-xs text-white/40">Aktif kullanıcı aboneliği yok.</p> : null}</div>{message ? <p className="mt-3 text-xs font-bold text-emerald-200">{message}</p> : null}</section>;
+  const [query, setQuery] = useState("");
+  const normalized = query.trim().toLocaleLowerCase("tr-TR");
+  const visible = active.filter((item) => !normalized || `${item.userName} ${item.userEmail} ${item.user_id}`.toLocaleLowerCase("tr-TR").includes(normalized));
+  return <section className="glass-card rounded-2xl p-5"><div className="flex flex-wrap items-center justify-between gap-3"><div><div className="flex items-center gap-2"><h2 className="text-xl font-black">Aktif Aboneler</h2><span className="rounded-full bg-bull-neon/10 px-2 py-1 text-[10px] font-black text-bull-neon">{active.length}</span></div><p className="mt-1 text-xs text-white/45">Kullanıcı, paket ve bitiş tarihini tek listeden yönetin.</p></div><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Kullanıcı veya e-posta ara" className="w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2.5 text-sm text-white sm:w-64" /></div><div className="mt-4 max-h-[430px] space-y-2 overflow-y-auto pr-1">{visible.map((item) => <article key={item.id} className="grid items-center gap-3 rounded-lg border border-white/10 bg-black/20 p-3 md:grid-cols-[minmax(0,1fr)_minmax(150px,.55fr)_auto]"><div className="min-w-0"><strong className="block truncate">{item.userName}</strong><p className="mt-1 truncate text-xs text-white/45">{item.userEmail || item.user_id}</p></div><div><strong className="block text-xs text-white/70">{subscriptions.plans.find((plan) => plan.id === item.plan_id)?.name || item.plan_id}</strong><small className="mt-1 block text-white/35">Bitiş: {new Date(item.ends_at).toLocaleDateString("tr-TR")}</small></div><button type="button" onClick={async () => { if (!window.confirm(`${item.userName} kullanıcısının aboneliği iptal edilsin mi?`)) return; const result = await subscriptions.cancel(item.id); setMessage(result.ok ? "Abonelik iptal edildi." : result.message); }} className="secondary-button button-compact border-red-300/20 text-red-200">İptal Et</button></article>)}{visible.length === 0 ? <p className="py-8 text-center text-xs text-white/40">{active.length ? "Aramayla eşleşen abone yok." : "Aktif kullanıcı aboneliği yok."}</p> : null}</div>{message ? <p className="mt-3 text-xs font-bold text-emerald-200">{message}</p> : null}</section>;
 }
 
 function ImageControl({ field, value, onSave }) {
@@ -329,23 +332,5 @@ function TeamLogoManager({ images, onSave, onRemove }) {
 }
 
 function compressImage(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onerror = reject;
-    reader.onload = () => {
-      const image = new Image();
-      image.onerror = reject;
-      image.onload = () => {
-        const maxSize = 1600;
-        const scale = Math.min(1, maxSize / Math.max(image.width, image.height));
-        const canvas = document.createElement("canvas");
-        canvas.width = Math.round(image.width * scale);
-        canvas.height = Math.round(image.height * scale);
-        canvas.getContext("2d").drawImage(image, 0, 0, canvas.width, canvas.height);
-        resolve(canvas.toDataURL("image/jpeg", 0.78));
-      };
-      image.src = reader.result;
-    };
-    reader.readAsDataURL(file);
-  });
+  return toWebpDataUrl(file, 0.86, 1600);
 }

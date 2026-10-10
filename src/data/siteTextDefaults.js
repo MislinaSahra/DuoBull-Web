@@ -6,7 +6,12 @@ export const defaultSiteTexts = {
       { question: "Turnuvaya nasıl katılırım?", answer: "Turnuva detayından başvuru gönder. Turnuva sahibi onayladığında turnuva, profilindeki Turnuvalarım alanına eklenir." },
       { question: "Satın aldığım ürün kodunu nerede görürüm?", answer: "Teslim edilen kodlar Bildirimler ve Profil > Siparişlerim bölümünde kalıcı olarak görüntülenir." },
       { question: "Bull Puan bakiyem nasıl artar?", answer: "Görevleri tamamlayarak, etkinliklere katılarak veya yönetici tarafından tanımlanan bakiyelerle Bull Puan kazanabilirsin." },
-      { question: "Hesabımı nasıl silebilirim?", answer: "Profilini Düzenle penceresindeki Hesabımı Sil alanından onay vererek hesabını kalıcı olarak kaldırabilirsin." }
+      { question: "Hesabımı nasıl silebilirim?", answer: "Profilini Düzenle penceresindeki Hesabımı Sil alanından onay vererek hesabını kalıcı olarak kaldırabilirsin." },
+      { question: "Takım ilanı nasıl oluşturulur?", answer: "Takım Oluştur sayfasından oyun, aranan roller, bölge ve takım bilgilerini girerek ilanını yönetici incelemesine gönderebilirsin." },
+      { question: "Arkadaşlık isteği ve mesajlaşma nasıl çalışır?", answer: "Sosyal sayfasından oyuncu arayabilir, arkadaşlık isteği gönderebilir ve kabul edilen arkadaşlarınla doğrudan mesajlaşabilirsin." },
+      { question: "Sadakat seviyesi nasıl yükselir?", answer: "Görevlerden ve platform etkinliklerinden kazandığın sadakat XP biriktikçe seviyen ve seviyene bağlı avantajların yükselir." },
+      { question: "Turnuva başvurum nereden takip edilir?", answer: "Profilindeki turnuva alanından bekleyen, onaylanan veya reddedilen başvurularını ve katıldığın turnuvaları takip edebilirsin." },
+      { question: "DuoBull aboneliği ne sağlar?", answer: "Seçilen pakete göre ek BP avantajları, sadakat mağazası erişimi, turnuva oluşturma ve gelişmiş takım yönetimi özellikleri sunar." }
     ]
   },
   terms: {

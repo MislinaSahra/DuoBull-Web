@@ -1,42 +1,22 @@
-import { BadgeCheck, Crown, ImagePlus, MessageSquare, Send, ThumbsDown, ThumbsUp, Trash2, Undo2 } from "lucide-react";
+import { BadgeCheck, Crown, MessageSquare, Plus, Send, ThumbsDown, ThumbsUp, Trash2, Undo2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import PageHero from "../components/PageHero.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
-import { addDiscussionComment, createDiscussionPost, deleteDiscussionPost, fetchDiscussionComments, fetchDiscussionPosts, subscribeToDiscussions, voteDiscussion } from "../services/DiscussionService.js";
+import { addDiscussionComment, deleteDiscussionPost, fetchDiscussionComments, fetchDiscussionPosts, subscribeToDiscussions, voteDiscussion } from "../services/DiscussionService.js";
 
 const emojis = ["😀", "😂", "🔥", "❤️", "👏", "🎮", "🏆", "🤝", "💯", "😮"];
 
 export default function DiscussionsPage() {
   const { user } = useAuth();
   const [posts, setPosts] = useState([]);
-  const [title, setTitle] = useState("");
-  const [body, setBody] = useState("");
-  const [file, setFile] = useState(null);
-  const [message, setMessage] = useState("");
   const refresh = useCallback(() => fetchDiscussionPosts(user?.id).then(setPosts).catch(() => setPosts([])), [user?.id]);
 
   useEffect(() => { refresh(); return subscribeToDiscussions(refresh); }, [refresh]);
-  const publish = async (event) => {
-    event.preventDefault();
-    const result = await createDiscussionPost(user.id, { title, body, file });
-    setMessage(result.ok ? "Gönderin yayınlandı." : result.message);
-    if (result.ok) { setTitle(""); setBody(""); setFile(null); refresh(); }
-  };
-
   return <>
-    <PageHero eyebrow="DuoBull Topluluğu" title="Fikirlerini paylaş," highlightedTitle="Topluluğa yön ver!" description="Taktiklerini paylaş, oyun gündemini tartış, görsel ve videolarla topluluğa katıl." backgroundKey="discussions" showTrust={false} />
+    <PageHero eyebrow="DuoBull Topluluğu" title="Fikirlerini paylaş," highlightedTitle="Topluluğa yön ver!" description="Taktiklerini paylaş, oyun gündemini tartış, görsel ve videolarla topluluğa katıl." backgroundKey="discussions" iconKey="community" showTrust={false} actions={<Link to="/tartismalar/yeni" className="primary-button"><Plus />Yeni tartışma başlat</Link>} />
     <section className="container-shell pb-16">
-      <div className="discussion-layout">
-        <form onSubmit={publish} className="glass-card discussion-composer">
-          <p className="section-kicker">Yeni tartışma başlat</p>
-          <input required minLength={3} maxLength={140} value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Tartışma başlığı" />
-          <textarea required value={body} onChange={(event) => setBody(event.target.value)} placeholder="Toplulukla ne paylaşmak istiyorsun?" />
-          <div className="flex flex-wrap items-center justify-between gap-3"><label className="secondary-button cursor-pointer px-4 py-2"><ImagePlus className="h-4 w-4" />{file ? file.name : "Görsel veya video ekle"}<input hidden type="file" accept="image/*,video/mp4,video/webm" onChange={(event) => setFile(event.target.files?.[0] || null)} /></label><button className="primary-button px-5 py-2.5"><Send className="h-4 w-4" />Yayınla</button></div>
-          {message ? <p className="text-xs text-white/55">{message}</p> : null}
-        </form>
-        <main className="grid gap-4">{posts.map((post) => <DiscussionCard key={post.id} post={post} user={user} refresh={refresh} />)}{!posts.length ? <div className="glass-card rounded-xl p-12 text-center text-white/40">Henüz tartışma başlatılmamış. İlk gönderiyi sen yayınlayabilirsin.</div> : null}</main>
-      </div>
+      <main className="mx-auto grid max-w-5xl gap-4">{posts.map((post) => <DiscussionCard key={post.id} post={post} user={user} refresh={refresh} />)}{!posts.length ? <div className="glass-card rounded-xl p-12 text-center text-white/40">Henüz tartışma başlatılmamış. İlk gönderiyi sen yayınlayabilirsin.</div> : null}</main>
     </section>
   </>;
 }

@@ -13,7 +13,7 @@ export default function HeroSection() {
   const featured = featuredTournaments[0];
   const focusAuth = (mode) => window.dispatchEvent(new CustomEvent("duobull:focus-auth", { detail: { mode } }));
   return <section id="anasayfa" className="home-hero relative overflow-hidden border-b border-bull-neon/20 bg-[#04090c]">
-    <img src={images.hero || "/duobull/backgrounds/home-hero-v2.png"} alt="" className="absolute inset-0 h-full w-full object-cover object-[72%_center]" />
+    <img src={images.hero || "/duobull/backgrounds/premium-bull-squad.webp"} alt="" fetchPriority="high" decoding="async" className="absolute inset-0 h-full w-full object-cover object-[72%_center]" />
     <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(4,9,12,.98)_0%,rgba(4,9,12,.86)_37%,rgba(4,9,12,.28)_68%,rgba(4,9,12,.06)_100%)]" />
     <div className="absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-[#05090c] to-transparent" />
     <div className="container-shell relative grid min-h-[560px] items-center gap-8 py-14 lg:min-h-[650px] lg:grid-cols-[minmax(0,1fr)_420px]"><div className="max-w-[760px] pb-14 lg:pb-20">

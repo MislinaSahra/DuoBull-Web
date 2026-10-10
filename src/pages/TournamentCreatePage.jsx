@@ -35,7 +35,7 @@ export default function TournamentCreatePage() {
     setForm(emptyForm);
   };
 
-  return <><PageHero eyebrow="Organizatör başvurusu" title="Turnuvanı planla." highlightedTitle="Başvurunu gönder." description="Turnuva bilgilerini eksiksiz doldur. Başvurun yönetici incelemesinden sonra yayınlanır ve profilindeki Turnuvalarım alanından takip edilir." backgroundKey="tournaments" actions={<><a href="#turnuva-basvurusu" className="primary-button">Başvuruyu Başlat</a><Link to="/profil?tab=tournaments" className="secondary-button">Turnuvalarımı Gör</Link></>} />
+  return <><PageHero eyebrow="Organizatör başvurusu" title="Turnuvanı planla." highlightedTitle="Başvurunu gönder." description="Turnuva bilgilerini eksiksiz doldur. Başvurun yönetici incelemesinden sonra yayınlanır ve profilindeki Turnuvalarım alanından takip edilir." backgroundKey="tournaments" iconKey="tournament" actions={<><a href="#turnuva-basvurusu" className="primary-button">Başvuruyu Başlat</a><Link to="/profil?tab=tournaments" className="secondary-button">Turnuvalarımı Gör</Link></>} />
     <section id="turnuva-basvurusu" className="container-shell tournament-create-layout pb-16">
       <form onSubmit={submit} className="tournament-create-form">
         <div className="flex items-center gap-3"><span className="icon-tile"><Trophy className="h-5 w-5" /></span><div><p className="text-[10px] font-black uppercase tracking-widest text-white/35">Turnuva başvurusu</p><h2 className="text-2xl font-black">Turnuva bilgileri</h2></div></div>

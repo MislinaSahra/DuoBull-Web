@@ -48,12 +48,25 @@ export function CartProvider({ children }) {
     isOpen,
     openCart() { setIsOpen(true); },
     closeCart() { setIsOpen(false); },
-    addItem(product) { if (!items.some((item) => item.name === product.name)) save([...items, { ...product, quantity: 1 }]); setIsOpen(true); },
+    addItem(product) {
+      const existing = items.find((item) => item.name === product.name);
+      const stockLimit = Math.max(1, Number(product.stockCount) || 99);
+      save(existing
+        ? items.map((item) => item.name === product.name ? { ...item, quantity: Math.min(stockLimit, item.quantity + 1) } : item)
+        : [...items, { ...product, quantity: 1 }]);
+    },
+    updateQuantity(name, quantity) {
+      save(items.map((item) => {
+        if (item.name !== name) return item;
+        const stockLimit = Math.max(1, Number(item.stockCount) || 99);
+        return { ...item, quantity: Math.max(1, Math.min(stockLimit, Number(quantity) || 1)) };
+      }));
+    },
     removeItem(name) { save(items.filter((item) => item.name !== name)); },
     clearCart() { save([]); },
     async checkout() {
       if (!items.length) return { ok: false, message: "Sepetin boş." };
-      const productIds = items.map((item) => item.id || ({ "Razer Gold": "razer-gold", "Google Play": "google-play", "App Store": "app-store", "PUBG Mobile": "pubg-mobile", Valorant: "valorant-vp", "Valorant VP": "valorant-vp" }[item.name])).filter(Boolean);
+      const productIds = items.flatMap((item) => Array.from({ length: item.quantity }, () => item.id || ({ "Razer Gold": "razer-gold", "Google Play": "google-play", "App Store": "app-store", "PUBG Mobile": "pubg-mobile", Valorant: "valorant-vp", "Valorant VP": "valorant-vp" }[item.name]))).filter(Boolean);
       const result = await createOrder({ productIds });
       if (!result.ok) return result;
       save([]);

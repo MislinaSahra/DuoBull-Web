@@ -1,5 +1,14 @@
 node_modules/
 dist/
+.portfolio-build/
+coverage/
+playwright-report/
+test-results/
+backups/
+
+# Yerel Supabase CLI durumu ve geçici dosyaları
+.supabase/
+supabase/.temp/
 
 # Ortam dosyaları gizli anahtar içerebilir. Yalnızca şablon repoda tutulur.
 .env*
@@ -8,3 +17,11 @@ dist/
 # Sunucu/SMTP/ödeme anahtarlarının yanlışlıkla eklenmesini önle.
 *.pem
 *.key
+*.pfx
+*.p12
+
+# İşletim sistemi ve editör kalıntıları
+.DS_Store
+Thumbs.db
+*.log
+QA_E2E_REPORT*.md

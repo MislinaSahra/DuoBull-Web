@@ -4,7 +4,7 @@ import { PublicPage, UserPage } from "./AppLayout.jsx";
 import { ProtectedAdmin, ProtectedUser } from "./RouteGuards.jsx";
 
 const page=(name)=>lazy(()=>import(`../pages/${name}.jsx`));
-const AdminDashboardPage=page("AdminDashboardPage"),BlogPage=page("BlogPage"),CommunityRankingPage=page("CommunityRankingPage"),ErrorPage=page("ErrorPage"),HomePage=page("HomePage"),InfoPage=page("InfoPage"),LegalPage=page("LegalPage"),LoyaltyPage=page("LoyaltyPage"),MissionsPage=page("MissionsPage"),PasswordResetPage=page("PasswordResetPage"),PlayerCareerPage=page("PlayerCareerPage"),ProfilePage=page("ProfilePage"),ShopPage=page("ShopPage"),SocialPage=page("SocialPage"),DiscussionsPage=page("DiscussionsPage"),SubscriptionPage=page("SubscriptionPage"),SupportPage=page("SupportPage"),TeamCreatePage=page("TeamCreatePage"),TeamFinderPage=page("TeamFinderPage"),TeamProfilePage=page("TeamProfilePage"),TournamentsPage=page("TournamentsPage"),TournamentCreatePage=page("TournamentCreatePage"),TournamentDetailPage=page("TournamentDetailPage");
+const AdminDashboardPage=page("AdminDashboardPage"),BlogPage=page("BlogPage"),BlogPostPage=page("BlogPostPage"),CommunityRankingPage=page("CommunityRankingPage"),DiscussionCreatePage=page("DiscussionCreatePage"),ErrorPage=page("ErrorPage"),HomePage=page("HomePage"),InfoPage=page("InfoPage"),LegalPage=page("LegalPage"),LoyaltyPage=page("LoyaltyPage"),MissionsPage=page("MissionsPage"),PasswordResetPage=page("PasswordResetPage"),PlayerCareerPage=page("PlayerCareerPage"),ProfilePage=page("ProfilePage"),ShopPage=page("ShopPage"),SocialPage=page("SocialPage"),DiscussionsPage=page("DiscussionsPage"),SubscriptionPage=page("SubscriptionPage"),SupportPage=page("SupportPage"),TeamCreatePage=page("TeamCreatePage"),TeamFinderPage=page("TeamFinderPage"),TeamProfilePage=page("TeamProfilePage"),TournamentsPage=page("TournamentsPage"),TournamentCreatePage=page("TournamentCreatePage"),TournamentDetailPage=page("TournamentDetailPage");
 
 export default function AppRoutes() {
   return (
@@ -16,6 +16,7 @@ export default function AppRoutes() {
       <Route path="/profil" element={<UserPage><ProfilePage /></UserPage>} />
       <Route path="/sosyal" element={<UserPage><SocialPage /></UserPage>} />
       <Route path="/tartismalar" element={<UserPage><DiscussionsPage /></UserPage>} />
+      <Route path="/tartismalar/yeni" element={<UserPage><DiscussionCreatePage /></UserPage>} />
       <Route path="/topluluk-eslestirme" element={<UserPage><CommunityRankingPage /></UserPage>} />
       <Route path="/oyuncu/:id" element={<UserPage><PlayerCareerPage /></UserPage>} />
       <Route path="/turnuvalar" element={<UserPage><TournamentsPage /></UserPage>} />
@@ -26,6 +27,7 @@ export default function AppRoutes() {
       <Route path="/magaza" element={<UserPage><ShopPage /></UserPage>} />
       <Route path="/abonelik" element={<UserPage><SubscriptionPage /></UserPage>} />
       <Route path="/blog" element={<PublicPage><BlogPage /></PublicPage>} />
+      <Route path="/blog/:slug" element={<PublicPage><BlogPostPage /></PublicPage>} />
       <Route path="/admin" element={<ProtectedAdmin><PublicPage><AdminDashboardPage /></PublicPage></ProtectedAdmin>} />
       <Route path="/yonetici-paneli" element={<Navigate to="/admin" replace />} />
       <Route path="/giris" element={<Navigate to="/#hesap" replace />} />

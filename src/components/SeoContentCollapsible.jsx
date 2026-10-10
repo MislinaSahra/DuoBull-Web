@@ -1,4 +1,2 @@
-import { ChevronDown } from "lucide-react";
-import { useState } from "react";
 import SeoContentAdmin from "./SeoContentAdmin.jsx";
-export default function SeoContentCollapsible(){const[open,setOpen]=useState(false);return <div className="mt-6"><section className="glass-card rounded-2xl p-5"><div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div><h2 className="text-2xl font-black">SEO ve Blog Yönetimi</h2><p className="mt-1 text-xs text-white/45">Ana sayfa ve blog SEO içeriklerini yönetin.</p></div><button type="button" onClick={()=>setOpen(value=>!value)} className="primary-button px-4 py-2.5 text-xs">{open?"Detayları Kapat":"Detayları Aç"}<ChevronDown className={`h-4 w-4 transition ${open?"rotate-180":""}`}/></button></div></section>{open?<div className="-mt-2 [&>section]:mt-0 [&>section]:rounded-t-none"><SeoContentAdmin/></div>:null}</div>}
+export default function SeoContentCollapsible({ mode = "seo" }){return <SeoContentAdmin mode={mode} />}

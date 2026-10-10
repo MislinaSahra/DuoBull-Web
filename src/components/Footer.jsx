@@ -20,8 +20,8 @@ export default function Footer() {
     .map((item) => ({ label: item.label, to: item.url }));
   const footerLinks = {
     Platform: staticFooterLinks.Platform,
-    "Mağaza": staticFooterLinks["Mağaza"],
-    Destek: managedGroup("Destek"),
+    "Keşfet": staticFooterLinks.Keşfet,
+    Destek: [...staticFooterLinks.Destek, ...managedGroup("Destek")].filter((link, index, links) => links.findIndex((item) => item.to === link.to && item.label === link.label) === index),
     Topluluk: managedGroup("Topluluk")
   };
   return (
@@ -53,7 +53,7 @@ export default function Footer() {
 
         <div className="site-footer__bottom mt-10 flex flex-col justify-between gap-4 border-t border-white/10 pt-6 text-sm text-white/45 sm:flex-row">
           <p>© 2026 DuoBull. Tüm hakları saklıdır.</p>
-          <p>Marka görselleri resmi DuoBull brand setinden kullanılmıştır.</p>
+          <p>Takımını bul, rekabete katıl, birlikte kazan.</p>
         </div>
       </div>
     </footer>

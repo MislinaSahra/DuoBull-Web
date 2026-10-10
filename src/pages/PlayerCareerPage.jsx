@@ -6,6 +6,7 @@ import { supabase } from "../lib/supabase.js";
 import { deletePlayerReview, fetchPlayerReviews, reportPlayerReview, savePlayerReview } from "../services/PlayerReviewService.js";
 import { fetchPlayerStats } from "../services/ProfileFeatureService.js";
 import { useSocial } from "../context/SocialContext.jsx";
+import ErrorPage from "./ErrorPage.jsx";
 
 export default function PlayerCareerPage() {
   const { id, slug } = useParams();
@@ -46,7 +47,7 @@ export default function PlayerCareerPage() {
   }), [reviews]);
 
   if (player === null) return <ProfileSkeleton />;
-  if (!player) return <section className="container-shell py-16 text-center text-white/50">Oyuncu bulunamadı.</section>;
+  if (!player) return <ErrorPage status={404} />;
   const socialPlayer = { id: player.id, email: player.email, name: player.username, game: player.game, playerRole: player.player_role, rank: player.rank, region: player.region, avatar: player.avatar_url };
   const isFriend = social.friendEmails.includes(player.email);
   const pendingFriend = social.outgoingRequests.some((item) => item.toEmail === player.email) || social.incomingRequests.some((item) => item.fromEmail === player.email);

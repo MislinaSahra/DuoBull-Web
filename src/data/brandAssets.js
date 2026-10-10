@@ -22,12 +22,12 @@ export const brandAssets = {
     tournament: "/duobull/icons/tournament.png"
   },
   backgrounds: {
-    hero: "/duobull/backgrounds/premium-bull-squad.png",
-    missions: "/duobull/backgrounds/premium-bull-squad.png",
-    shop: "/duobull/backgrounds/premium-bull-squad.png",
-    team: "/duobull/backgrounds/premium-bull-squad.png",
-    community: "/duobull/backgrounds/premium-bull-squad.png",
-    loyalty: "/duobull/backgrounds/premium-bull-squad.png",
-    tournaments: "/duobull/backgrounds/premium-bull-squad.png"
+    hero: "/duobull/backgrounds/premium-bull-squad.webp",
+    missions: "/duobull/backgrounds/premium-bull-squad.webp",
+    shop: "/duobull/backgrounds/premium-bull-squad.webp",
+    team: "/duobull/backgrounds/premium-bull-squad.webp",
+    community: "/duobull/backgrounds/premium-bull-squad.webp",
+    loyalty: "/duobull/backgrounds/premium-bull-squad.webp",
+    tournaments: "/duobull/backgrounds/premium-bull-squad.webp"
   }
 };
